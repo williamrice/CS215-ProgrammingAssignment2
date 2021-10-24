@@ -585,14 +585,15 @@ void AList::InsertionSort(int & comparisons, int & movements){
     for(int i = 1; i < size; i++){
         j = i;
         done = false;
+        //we don't have to compare the last element
         if(i != size - 1)
             comparisons++;
         while((j >=1) && (! done)){
             comparisons++;
             if(items[j] < items[j - 1]){
+                movements++;
                 Swap(j, j - 1);
                 j -= 1;
-                movements += (3 * (i - 1));
             }
             else    
                 done = true;
