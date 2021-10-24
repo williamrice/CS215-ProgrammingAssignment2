@@ -315,7 +315,9 @@ void perform_insertion_sort(){
     aList.InsertionSort(comparisons, movements);
 
     cout << setw(45) << left << "\nTheoretical sort statistics:";
-    cout << " element comparisons, " <<
+    cout << (int)(pow(aList.GetSize(), 2.0) / 2) << 
+            " element comparisons, " <<
+            (int)(3 * ((pow(aList.GetSize(), 2.0) / 2))) <<
             " element movements" 
         << endl;
     
@@ -324,9 +326,6 @@ void perform_insertion_sort(){
     cout << comparisons << " element comparisons, " <<
             movements << " element movements" 
         << endl;
-
-
-
 }
 
 void perform_linear_search(){
@@ -586,15 +585,19 @@ void AList::InsertionSort(int & comparisons, int & movements){
     for(int i = 1; i < size; i++){
         j = i;
         done = false;
-        comparisons++;
-        while((j >=1) && (! done))
+        if(i != size - 1)
+            comparisons++;
+        while((j >=1) && (! done)){
+            comparisons++;
             if(items[j] < items[j - 1]){
                 Swap(j, j - 1);
                 j -= 1;
-                movements++;
+                movements += (3 * (i - 1));
             }
             else    
                 done = true;
+        }
+            
     }
     isKnownOrdered = true;
 }
