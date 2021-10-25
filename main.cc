@@ -20,7 +20,12 @@
  * the user must be aware that they must enter -1 at 
  * the end to signal to the program that they are done
  * inputting values. The list must be in order prior to 
- * doing a binary search. 
+ * doing a binary search. This program assumes that 
+ * 3 movements are made everytime the AList::Swap method
+ * is used therefore the number of movements increases
+ * by 3 after each call. The only issue/bug currently
+ * known is the sort and search statistics as far as their 
+ * accuracy in some extreme cases. 
  * 
  * Program Postconditions: If a user chooses to sort
  * the list, we must guarantee that we track the list
@@ -69,6 +74,8 @@ void print_program_header();
 void reset_list_from_keyboard();
 void reset_list_with_random_gen();
 void perform_insertion_sort();
+void perform_bubble_sort();
+void perform_selection_sort();
 void perform_linear_search();
 void perform_binary_search();
 
@@ -88,9 +95,9 @@ class AList{
         void Print();
         int GetSize();
         bool IsKnownOrdered();
-        void BubbleSort();
+        void BubbleSort(int & comparisons, int & movements);
         void InsertionSort(int & comparisons, int & movements);
-        void SelectionSort();
+        void SelectionSort(int & comparisons, int & movements);
         void LinearSearch(element target, bool & found, int & position);
         void BinarySearch(element target, bool & found, int & position,
                 int & comparisons);
@@ -126,13 +133,13 @@ int main(){
                 reset_list_with_random_gen();
                 break;
             case 3:
-                aList.BubbleSort();
+                perform_bubble_sort();
                 break;
             case 4:
                 perform_insertion_sort();
                 break;
             case 5:
-                aList.SelectionSort();
+                perform_selection_sort();
                 break;
             case 6:
                 perform_linear_search();
@@ -146,6 +153,8 @@ int main(){
             default:
                 cout << "Error, you must choose a valid option from the " << 
                         "list" << endl;
+                cin.clear();
+                cin.ignore(80, '\n');
                 break;
         }
     }
@@ -167,11 +176,15 @@ element read_element(){
     element userval;
 
     cin >> boolalpha >> userval;
-    while(! cin.good()){
+    while(! cin.good() || userval < -1){
         cin.clear();
         cin.ignore(80, '\n');
-        cout << "Invalid data type, should be an element, "
+        if(userval < -1)
+            cout << "Element must be a positive whole number, "
             << "try again: ";
+        else
+            cout << "Invalid data type, should be an element, "
+                << "try again: ";
         cin >> boolalpha >> userval;
     }
     return userval;
@@ -242,7 +255,7 @@ void reset_list_with_random_gen(){
         cin.clear();
         cin.ignore(80, '\n');
         if(num_of_elements < 0 ||num_of_elements > MLS)
-            cout << "Response must be between 0 and" << MLS <<
+            cout << "Response must be between 0 and " << MLS <<
             " , try again: ";
         else
             cout << "Response must be a whole number, "
@@ -295,26 +308,53 @@ void reset_list_with_random_gen(){
     
     aList.GenerateRandomList(num_of_elements, low_bound, high_bound);
 
-    cout << "\nFinished resetting, " << num_of_elements << " between " <<
-            low_bound << " and " << high_bound << 
-            " randomly generated.\n" << endl;
+    cout << "\nFinished resetting, " << num_of_elements << " elements between " 
+            << low_bound << " and " << high_bound << 
+            " randomly generated.\n" << endl; 
+            
+}
+
+void perform_bubble_sort(){
+    //PRE: none
+
+    //POST: uses the Alist method of BubbleSort to sort the list.
+    //      stats of the search including comparisons and movements
+    //      for theoretical and actual data are tracked
+
+    int comparisons;
+    int movements;
+
+    cout << "\nPerforming Bubble Sort on the current list" << endl;
+
+    aList.BubbleSort(comparisons, movements);
+
+    cout << setw(30) << left << "\nTheoretical sort statistics:";
+    cout << (int)(pow(aList.GetSize(), 2.0) / 2) << 
+            " element comparisons, " <<
+            (int)(3 * ((pow(aList.GetSize(), 2.0) / 2))) <<
+            " element movements" 
+        << endl;
+
+    cout << setw(30) << left << "Actual sort statistics:";
+    cout << comparisons << " element comparisons, " <<
+            movements << " element movements" 
+        << endl;
 }
 
 void perform_insertion_sort(){
     //PRE: none
     //POST: uses the AList method of InsertionSort to sort the list. 
     //      stats of the search including comparisons and movements
-    //      for theoretical and actual data
-
-    //used to track comparisons and movements for stats
-    int comparisons;
-    int movements;
+    //      for theoretical and actual data are tracked
+    
+    int comparisons; // used for stat tracking
+    int movements;  // used for stat tracking
 
     cout << "\nPerforming Insertion Sort on the current list" << endl;
 
     aList.InsertionSort(comparisons, movements);
 
-    cout << setw(45) << left << "\nTheoretical sort statistics:";
+    cout << setw(30) << left << "\nTheoretical sort statistics:";
     cout << (int)(pow(aList.GetSize(), 2.0) / 2) << 
             " element comparisons, " <<
             (int)(3 * ((pow(aList.GetSize(), 2.0) / 2))) <<
@@ -322,10 +362,39 @@ void perform_insertion_sort(){
         << endl;
     
 
-    cout << setw(45) << left << "Actual sort statistics:";
+    cout << setw(30) << left << "Actual sort statistics:";
     cout << comparisons << " element comparisons, " <<
             movements << " element movements" 
         << endl;
+}
+
+void perform_selection_sort(){
+     //PRE: none
+    //POST: uses the AList method of InsertionSort to sort the list. 
+    //      stats of the search including comparisons and movements
+    //      for theoretical and actual data are tracked
+
+    int comparisons; // used for stat tracking
+    int movements;  // used for stat tracking
+
+    cout << "\nPerforming Insertion Sort on the current list" << endl;
+
+    aList.SelectionSort(comparisons, movements);
+
+    cout << setw(30) << left << "\nTheoretical sort statistics:";
+    cout << (int)(pow(aList.GetSize(), 2.0) / 2) << 
+            " element comparisons, " <<
+            (int)(3 * (aList.GetSize() - 1)) <<
+            " element movements" 
+        << endl;
+    
+
+    cout << setw(30) << left << "Actual sort statistics:";
+    cout << comparisons << " element comparisons, " <<
+            movements << " element movements" 
+        << endl;
+
+
 }
 
 void perform_linear_search(){
@@ -354,12 +423,13 @@ void perform_linear_search(){
     else
         cout << "\nThe target was NOT FOUND on the current list";
 
-    cout << setw(45) << left << "\nTheoretical search statistics:";
+    cout << setw(30) << left << "\nTheoretical search statistics:";
     cout << aList.GetSize() << " element comparisons" << endl;
     
 
-    cout << setw(45) << left << "Actual search statistics:";
-    cout << (position + 1) << " element comparisons" << endl;
+    cout << setw(30) << left << "Actual search statistics:";
+    cout << (aList.GetSize() > 0 ? (position + 1) :
+    0) << " element comparisons" << endl;
     
 }
 
@@ -401,12 +471,13 @@ void perform_binary_search(){
     else
         cout << "\nThe target was NOT FOUND on the current list";
 
-    cout << setw(45) << left << "\nTheoretical search statistics:";
-    cout << (int)ceil(log2(aList.GetSize())) << 
-            " element comparisons" << endl;
+    cout << setw(30) << left << "\nTheoretical search statistics:";
+    cout << (aList.GetSize() > 0 ? (int)ceil(log2(aList.GetSize())) :
+            0) << " element comparisons" << endl;
+            
     
 
-    cout << setw(45) << left << "Actual search statistics:";
+    cout << setw(30) << left << "Actual search statistics:";
     cout << comparisons << " element comparisons" << endl;
 
 
@@ -553,16 +624,22 @@ void AList::Swap(int pos1, int pos2){
     items[pos2] = temp;
 }
 
-void AList::BubbleSort(){
+void AList::BubbleSort(int & comparisons, int & movements){
     //PRE: the N.O. AList is valid
 
     //POST: the N.O. Alist is unchanged, except that
     //      its elements are now in ascending order
 
+    comparisons = 0;
+    movements = 0;
+
     for(int i = 0; i < size - 1; i++){
         for(int j = 0; j < size - 1 - i; j++){
-            if(items[j] > items[j + 1])
+            comparisons++;
+            if(items[j] > items[j + 1]){
                 Swap(j, j + 1);
+                movements += 3;
+            }
             else
                 ;
         }
@@ -573,7 +650,7 @@ void AList::BubbleSort(){
 void AList::InsertionSort(int & comparisons, int & movements){
     //PRE: the N.O. AList is valid
 
-    //POST: the N.O. AList is unchaged, except that 
+    //POST: the N.O. AList is unchanged, except that 
     //      its elements are now in ascending order
 
     int j;
@@ -591,8 +668,8 @@ void AList::InsertionSort(int & comparisons, int & movements){
         while((j >=1) && (! done)){
             comparisons++;
             if(items[j] < items[j - 1]){
-                movements++;
                 Swap(j, j - 1);
+                movements += 3;
                 j -= 1;
             }
             else    
@@ -603,7 +680,7 @@ void AList::InsertionSort(int & comparisons, int & movements){
     isKnownOrdered = true;
 }
 
-void AList::SelectionSort(){
+void AList::SelectionSort(int & comparisons, int & movements){
     //PRE: the N.O. AList is valid
 
     //POST: the N.O. AList is unchanged, except that its
@@ -611,15 +688,20 @@ void AList::SelectionSort(){
 
     int maxpos;
 
+    comparisons = 0;
+    movements = 0;
+
     for(int i = size - 1; i > 0; i--){
         maxpos = 0;
         for(int j = 1; j <= i; j++){
+            comparisons++;
             if(items[j] > items[maxpos])
                 maxpos = j;
             else    
                 ;
         }
         Swap(maxpos, i);
+        movements += 3;
     }
     isKnownOrdered = true;
 }
